@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class BranchController extends FOSRestController
 {
     /**
-     * @Rest\Get("/branches")
+     * @Rest\Get("/api/branches")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
@@ -49,7 +49,7 @@ class BranchController extends FOSRestController
     }
 
     /**
-     * @Rest\Get("/branches/{id}")
+     * @Rest\Get("/api/branches/{id}")
      */
     public function getAction($id)
     {
@@ -61,7 +61,7 @@ class BranchController extends FOSRestController
     }
 
     /**
-     * @Rest\Post("/branches")
+     * @Rest\Post("/api/branches")
      */
     public function postAction(Request $request)
     {
@@ -84,7 +84,7 @@ class BranchController extends FOSRestController
     }
 
     /**
-     * @Rest\Put("/branches/{id}")
+     * @Rest\Put("/api/branches/{id}")
      */
     public function updateAction($id, Request $request)
     {
@@ -106,7 +106,7 @@ class BranchController extends FOSRestController
     }
 
     /**
-     * @Rest\Delete("/branches/{id}")
+     * @Rest\Delete("/api/branches/{id}")
      */
     public function deleteAction($id)
     {

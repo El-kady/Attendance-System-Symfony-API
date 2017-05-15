@@ -3,22 +3,22 @@
 security:
 
     # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+    encoders:
+        AppBundle\Entity\User: bcrypt
     providers:
-        in_memory:
-            memory: ~
+        database_users:
+            entity: { class: AppBundle:User, property: email }
 
     firewalls:
-        # disables authentication for assets and the profiler, adapt it according to your needs
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
+        # Custom authentication firewall for all request thats starts from /api
+        api:
+            pattern: ^/api/(?!token)
+            guard:
+                authenticators:
+                    - app.jwt_token_authenticator
 
-        main:
-            anonymous: ~
-            # activate different ways to authenticate
+    access_control:
+        - { path: /api/token-authentication, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: [ROLE_USER, ROLE_API_USER] }
 
-            # http://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-            #http_basic: ~
-
-            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
-            #form_login: ~
+        - { path: ^/, roles: ROLE_USER }

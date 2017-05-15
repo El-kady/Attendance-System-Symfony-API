@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class TrackController extends FOSRestController
 {
     /**
-     * @Rest\Get("/tracks")
+     * @Rest\Get("/api/tracks")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
@@ -49,7 +49,7 @@ class TrackController extends FOSRestController
     }
 
     /**
-     * @Rest\Get("/tracks/{id}")
+     * @Rest\Get("/api/tracks/{id}")
      */
     public function getAction($id)
     {
@@ -61,7 +61,7 @@ class TrackController extends FOSRestController
     }
 
     /**
-     * @Rest\Post("/tracks")
+     * @Rest\Post("/api/tracks")
      */
     public function postAction(Request $request)
     {
@@ -83,7 +83,7 @@ class TrackController extends FOSRestController
     }
 
     /**
-     * @Rest\Put("/tracks/{id}")
+     * @Rest\Put("/api/tracks/{id}")
      */
     public function updateAction($id, Request $request)
     {
@@ -105,7 +105,7 @@ class TrackController extends FOSRestController
     }
 
     /**
-     * @Rest\Delete("/tracks/{id}")
+     * @Rest\Delete("/api/tracks/{id}")
      */
     public function deleteAction($id)
     {
