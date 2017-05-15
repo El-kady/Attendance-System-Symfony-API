@@ -87,7 +87,7 @@ class UserController extends FOSRestController
         $user->setPassword($password);
         $user->setIsAdmin($is_admin);
         $user->setRoles($roles);
-        $data->setTrack($track);
+        $user->setTrack($track);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
@@ -101,7 +101,7 @@ class UserController extends FOSRestController
      */
     public function updateAction($id, Request $request)
     {
-        $data = new User;
+        $user = new User;
         $name = $request->get('name');
         $email = $request->get('email');
         $password = $request->get('password');
@@ -115,10 +115,10 @@ class UserController extends FOSRestController
             return new View("user not found", Response::HTTP_NOT_FOUND);
         } elseif (!empty($name) && !empty($email) && !empty($password) && !empty($track)) {
             $user->setName($name);
-            $data->setEmail($email);
-            $data->setPassword($password);
-            $data->setIsAdmin($is_admin);
-            $data->setTrack($track);
+            $user->setEmail($email);
+            $user->setPassword($password);
+            $user->setIsAdmin($is_admin);
+            $user->setTrack($track);
             $sn->flush();
             return new View("User Updated Successfully", Response::HTTP_OK);
         } else return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
