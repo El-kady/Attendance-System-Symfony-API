@@ -49,6 +49,17 @@ class User
      */
     private $password;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Track", inversedBy="users")
+     * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $track;
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="track_id", type="integer",nullable = true)
+     */
+    private $trackId;
 
     /**
      * Get id
@@ -155,5 +166,55 @@ class User
     {
         return $this->password;
     }
-}
 
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set track
+     *
+     * @param \AppBundle\Entity\Track $track
+     *
+     * @return User
+     */
+    public function setTrack(\AppBundle\Entity\Track $track = null)
+    {
+        $this->track = $track;
+
+        return $this;
+    }
+
+    /**
+     * Get track
+     *
+     * @return \AppBundle\Entity\Track
+     */
+    public function getTrack()
+    {
+        return $this->track;
+    }
+
+    /**
+     * Set trackId
+     *
+     * @param integer $trackId
+     *
+     * @return User
+     */
+    public function setTrackId($trackId)
+    {
+        $this->trackId = $trackId;
+        return $this;
+    }
+    /**
+     * Get trackId
+     *
+     * @return integer
+     */
+    public function getTrackId()
+    {
+        return $this->trackId;
+    }
+}
