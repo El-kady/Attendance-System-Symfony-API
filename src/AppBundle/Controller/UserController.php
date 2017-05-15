@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends FOSRestController
 {
     /**
-     * @Rest\Get("/users")
+     * @Rest\Get("/api/users")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
@@ -49,7 +49,7 @@ class UserController extends FOSRestController
     }
 
     /**
-     * @Rest\Get("/users/{id}")
+     * @Rest\Get("/api/users/{id}")
      */
     public function getAction($id)
     {
@@ -61,34 +61,41 @@ class UserController extends FOSRestController
     }
 
     /**
-     * @Rest\Post("/users")
+     * @Rest\Post("/api/users")
      */
     public function postAction(Request $request)
     {
-        $data = new User;
+        $user = new User;
         $name = $request->get('name');
+        $username = $request->get('username');
         $email = $request->get('email');
         $password = $request->get('password');
         $is_admin = $request->get('is_admin',false);
+        $roles = $request->get('roles','roles');
 
-        if (empty($name) || empty($email) || empty($password)) {
+        if (empty($name) || empty($username) || empty($email) || empty($password)) {
             return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        $data->setName($name);
-        $data->setEmail($email);
-        $data->setPassword($password);
-        $data->setIsAdmin($is_admin);
+        $password = $this->get('security.password_encoder')
+            ->encodePassword($user, $password);
+
+        $user->setName($name);
+        $user->setUserName($username);
+        $user->setEmail($email);
+        $user->setPassword($password);
+        $user->setIsAdmin($is_admin);
+        $user->setRoles($roles);
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($data);
+        $em->persist($user);
         $em->flush();
 
-        return new View($data, Response::HTTP_OK);
+        return new View($user, Response::HTTP_OK);
     }
 
     /**
-     * @Rest\Put("/users/{id}")
+     * @Rest\Put("/api/users/{id}")
      */
     public function updateAction($id, Request $request)
     {
@@ -108,7 +115,7 @@ class UserController extends FOSRestController
     }
 
     /**
-     * @Rest\Delete("/user/{id}")
+     * @Rest\Delete("/api/users/{id}")
      */
     public function deleteAction($id)
     {
