@@ -71,27 +71,20 @@ class ScheduleController extends FOSRestController
     {
         $schedule = new Schedule();
 
-        $_day_date = strtotime($request->get('day_date'));
-
-        $_start_time = explode(':',$request->get('start_time'));
-        $_start_time_hours = (int) $_start_time[0];
-        $_start_time_minutes = (int) $_start_time[1];
-
-        $start_time = date( 'Y-m-d H:i:s', mktime($_start_time_hours, $_start_time_minutes, 0, date("n",$_day_date), date("j",$_day_date), date("Y",$_day_date)) );
-
-        $_end_time = explode(':',$request->get('end_time'));
-        $_end_time_hours = (int) $_end_time[0];
-        $_end_time_minutes = (int) $_end_time[1];
-
-        $end_time = date( 'Y-m-d H:i:s', mktime($_end_time_hours, $_end_time_minutes, 0, date("n",$_day_date), date("j",$_day_date), date("Y",$_day_date)) );
+        $day_date = $request->get('day_date');
+        $start_time = $request->get('start_time');
+        $end_time = $request->get('end_time');
 
         $track = $this->getDoctrine()
             ->getRepository('AppBundle:Track')
             ->find($request->get('track_id'));
 
-        $schedule->setStartTime(new \DateTime($start_time));
-        $schedule->setEndTime(new \DateTime($end_time));
+        $schedule->setCalenderId(1);
+        $schedule->setDayDate($day_date);
+        $schedule->setStartTime($start_time);
+        $schedule->setEndTime($end_time);
         $schedule->setTrack($track);
+        $schedule->setDescription("123");
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($schedule);
@@ -105,20 +98,26 @@ class ScheduleController extends FOSRestController
      */
     public function updateAction($id, Request $request)
     {
-        $data = new Track;
-        $name = $request->get('name');
-        $branch = $this->getDoctrine()->getRepository('AppBundle:Branch')->find($request->get('branch_id'));
+
+        $day_date = $request->get('day_date');
+        $start_time = $request->get('start_time');
+        $end_time = $request->get('end_time');
+
+        $track = $this->getDoctrine()
+            ->getRepository('AppBundle:Track')
+            ->find($request->get('track_id'));
 
         $ss = $this->getDoctrine()->getManager();
-        $track = $ss->getRepository('AppBundle:Track')->find($id);
+        $schedule = $ss->getRepository('AppBundle:Schedule')->find($id);
 
-        if (empty($track)) {
-            return new View("track not found", Response::HTTP_NOT_FOUND);
-        } elseif (!empty($name) && !empty($branch)) {
-            $track->setName($name);
-            $data->setBranch($branch);
+        $schedule->setDayDate($day_date);
+        $schedule->setStartTime($start_time);
+        $schedule->setEndTime($end_time);
+        $schedule->setTrack($track);
+
+        if (!empty($day_date) && !empty($start_time) && !empty($end_time)) {
             $ss->flush();
-            return new View("Track Updated Successfully", Response::HTTP_OK);
+            return new View("Updated Successfully", Response::HTTP_OK);
         } else return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
     }
 
@@ -127,14 +126,13 @@ class ScheduleController extends FOSRestController
      */
     public function deleteAction($id)
     {
-        $data = new Track;
         $sn = $this->getDoctrine()->getManager();
-        $track = $sn->getRepository('AppBundle:Track')->find($id);
-        if (empty($track)) {
-            return new View("track not found", Response::HTTP_NOT_FOUND);
+        $schedule = $sn->getRepository('AppBundle:Schedule')->find($id);
+        if (empty($schedule)) {
+            return new View("not found", Response::HTTP_NOT_FOUND);
         }
         else {
-            $sn->remove($track);
+            $sn->remove($schedule);
             $sn->flush();
         }
         return new View("deleted successfully", Response::HTTP_OK);

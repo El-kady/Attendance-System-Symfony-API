@@ -29,7 +29,7 @@ class Schedule
     private $calenderId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Track", inversedBy="tracks")
+     * @ORM\ManyToOne(targetEntity="Track")
      * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $track;
@@ -42,16 +42,24 @@ class Schedule
     private $trackId;
 
     /**
-     * @var \DateTime
+     * @var \string
      *
-     * @ORM\Column(name="start_time", type="datetime")
+     * @ORM\Column(name="day_date", type="string")
+     */
+    private $dayDate;
+    //private $day_date;
+
+    /**
+     * @var \string
+     *
+     * @ORM\Column(name="start_time", type="string")
      */
     private $startTime;
 
     /**
-     * @var \DateTime
+     * @var \string
      *
-     * @ORM\Column(name="end_time", type="datetime")
+     * @ORM\Column(name="end_time", type="string")
      */
     private $endTime;
 
@@ -61,7 +69,6 @@ class Schedule
      * @ORM\Column(name="description", type="string", length=255)
      */
     private $description;
-
 
     /**
      * Get id
@@ -121,6 +128,20 @@ class Schedule
         return $this->track;
     }
 
+
+    public function setStartTime($startTime)
+    {
+        $this->startTime = $startTime;
+
+        return $this;
+    }
+
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+
     /**
      * Set startTime
      *
@@ -128,9 +149,9 @@ class Schedule
      *
      * @return Schedule
      */
-    public function setStartTime($startTime)
+    public function setDayDate($dayDate)
     {
-        $this->startTime = $startTime;
+        $this->dayDate = $dayDate;
 
         return $this;
     }
@@ -140,9 +161,9 @@ class Schedule
      *
      * @return \DateTime
      */
-    public function getStartTime()
+    public function getDayDate()
     {
-        return $this->startTime;
+        return $this->dayDate;
     }
 
     /**
