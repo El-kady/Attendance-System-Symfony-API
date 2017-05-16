@@ -17,6 +17,7 @@ class ScheduleController extends FOSRestController
 {
     /**
      * @Rest\Get("/api/schedules")
+     * @Annotations\QueryParam(name="track_id", nullable=true, description="Track id.")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
@@ -24,6 +25,8 @@ class ScheduleController extends FOSRestController
      */
     public function indexAction(Request $request,ParamFetcherInterface $paramFetcher)
     {
+        $track_id = $paramFetcher->get('track_id');
+
         $sortField = $paramFetcher->get('_sort');
         $sortOrder = $paramFetcher->get('_order');
         $start = $paramFetcher->get('_start');
@@ -31,7 +34,7 @@ class ScheduleController extends FOSRestController
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
-            ->findAllQuery($sortField,$sortOrder,$start,$end);
+            ->findAllQuery($track_id,$sortField,$sortOrder,$start,$end);
 
         $paginator = new Paginator($query);
         $totalCount = $paginator->count();
@@ -68,15 +71,28 @@ class ScheduleController extends FOSRestController
     {
         $schedule = new Schedule();
 
-        $name = $request->get('name');
-        $track = $this->getDoctrine()->getRepository('AppBundle:Track')->find($request->get('track_id'));
+        $_day_date = strtotime($request->get('day_date'));
 
-        if (empty($name) || empty($branch)) {
-            return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
-        }
+        $_start_time = explode(':',$request->get('start_time'));
+        $_start_time_hours = (int) $_start_time[0];
+        $_start_time_minutes = (int) $_start_time[1];
 
-        $schedule->setName($name);
+        $start_time = date( 'Y-m-d H:i:s', mktime($_start_time_hours, $_start_time_minutes, 0, date("n",$_day_date), date("j",$_day_date), date("Y",$_day_date)) );
+
+        $_end_time = explode(':',$request->get('end_time'));
+        $_end_time_hours = (int) $_end_time[0];
+        $_end_time_minutes = (int) $_end_time[1];
+
+        $end_time = date( 'Y-m-d H:i:s', mktime($_end_time_hours, $_end_time_minutes, 0, date("n",$_day_date), date("j",$_day_date), date("Y",$_day_date)) );
+
+        $track = $this->getDoctrine()
+            ->getRepository('AppBundle:Track')
+            ->find($request->get('track_id'));
+
+        $schedule->setStartTime(new \DateTime($start_time));
+        $schedule->setEndTime(new \DateTime($end_time));
         $schedule->setTrack($track);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($schedule);
         $em->flush();

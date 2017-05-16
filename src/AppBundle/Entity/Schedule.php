@@ -35,6 +35,13 @@ class Schedule
     private $track;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="track_id", type="integer",nullable = true)
+     */
+    private $trackId;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="start_time", type="datetime")
@@ -184,6 +191,28 @@ class Schedule
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set trackId
+     *
+     * @param integer $trackId
+     *
+     * @return User
+     */
+    public function setTrackId($trackId)
+    {
+        $this->trackId = $trackId;
+        return $this;
+    }
+    /**
+     * Get trackId
+     *
+     * @return integer
+     */
+    public function getTrackId()
+    {
+        return $this->trackId;
     }
 }
 
