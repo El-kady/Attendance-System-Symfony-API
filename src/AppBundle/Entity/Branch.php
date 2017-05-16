@@ -135,4 +135,8 @@ class Branch
     {
         return $this->tracks;
     }
+    public function __toString()
+    {
+        return $this->name;
+    }  
 }
