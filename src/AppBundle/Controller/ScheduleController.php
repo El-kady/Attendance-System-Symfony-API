@@ -17,6 +17,7 @@ class ScheduleController extends FOSRestController
 {
     /**
      * @Rest\Get("/api/schedules")
+     * @Annotations\QueryParam(name="track_id", nullable=true, description="Track id.")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
@@ -24,6 +25,8 @@ class ScheduleController extends FOSRestController
      */
     public function indexAction(Request $request,ParamFetcherInterface $paramFetcher)
     {
+        $track_id = $paramFetcher->get('track_id');
+
         $sortField = $paramFetcher->get('_sort');
         $sortOrder = $paramFetcher->get('_order');
         $start = $paramFetcher->get('_start');
@@ -31,7 +34,7 @@ class ScheduleController extends FOSRestController
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
-            ->findAllQuery($sortField,$sortOrder,$start,$end);
+            ->findAllQuery($track_id,$sortField,$sortOrder,$start,$end);
 
         $paginator = new Paginator($query);
         $totalCount = $paginator->count();
@@ -68,15 +71,21 @@ class ScheduleController extends FOSRestController
     {
         $schedule = new Schedule();
 
-        $name = $request->get('name');
-        $track = $this->getDoctrine()->getRepository('AppBundle:Track')->find($request->get('track_id'));
+        $day_date = $request->get('day_date');
+        $start_time = $request->get('start_time');
+        $end_time = $request->get('end_time');
 
-        if (empty($name) || empty($branch)) {
-            return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
-        }
+        $track = $this->getDoctrine()
+            ->getRepository('AppBundle:Track')
+            ->find($request->get('track_id'));
 
-        $schedule->setName($name);
+        $schedule->setCalenderId(1);
+        $schedule->setDayDate($day_date);
+        $schedule->setStartTime($start_time);
+        $schedule->setEndTime($end_time);
         $schedule->setTrack($track);
+        $schedule->setDescription("123");
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($schedule);
         $em->flush();
@@ -89,20 +98,26 @@ class ScheduleController extends FOSRestController
      */
     public function updateAction($id, Request $request)
     {
-        $data = new Track;
-        $name = $request->get('name');
-        $branch = $this->getDoctrine()->getRepository('AppBundle:Branch')->find($request->get('branch_id'));
+
+        $day_date = $request->get('day_date');
+        $start_time = $request->get('start_time');
+        $end_time = $request->get('end_time');
+
+        $track = $this->getDoctrine()
+            ->getRepository('AppBundle:Track')
+            ->find($request->get('track_id'));
 
         $ss = $this->getDoctrine()->getManager();
-        $track = $ss->getRepository('AppBundle:Track')->find($id);
+        $schedule = $ss->getRepository('AppBundle:Schedule')->find($id);
 
-        if (empty($track)) {
-            return new View("track not found", Response::HTTP_NOT_FOUND);
-        } elseif (!empty($name) && !empty($branch)) {
-            $track->setName($name);
-            $data->setBranch($branch);
+        $schedule->setDayDate($day_date);
+        $schedule->setStartTime($start_time);
+        $schedule->setEndTime($end_time);
+        $schedule->setTrack($track);
+
+        if (!empty($day_date) && !empty($start_time) && !empty($end_time)) {
             $ss->flush();
-            return new View("Track Updated Successfully", Response::HTTP_OK);
+            return new View("Updated Successfully", Response::HTTP_OK);
         } else return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
     }
 
@@ -111,14 +126,13 @@ class ScheduleController extends FOSRestController
      */
     public function deleteAction($id)
     {
-        $data = new Track;
         $sn = $this->getDoctrine()->getManager();
-        $track = $sn->getRepository('AppBundle:Track')->find($id);
-        if (empty($track)) {
-            return new View("track not found", Response::HTTP_NOT_FOUND);
+        $schedule = $sn->getRepository('AppBundle:Schedule')->find($id);
+        if (empty($schedule)) {
+            return new View("not found", Response::HTTP_NOT_FOUND);
         }
         else {
-            $sn->remove($track);
+            $sn->remove($schedule);
             $sn->flush();
         }
         return new View("deleted successfully", Response::HTTP_OK);

@@ -10,4 +10,27 @@ namespace AppBundle\Repository;
  */
 class ScheduleRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findAllQuery($track_id = 0,$sort = null,$order = null,$start = 0,$end = 10)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('s')
+            ->from('AppBundle:Schedule', 's');
+
+        if ($track_id > 0) {
+            $qb->where('s.track = ' . $track_id);
+        }
+
+        if ($sort && $order) {
+            $qb->orderBy('s.' . $sort, $order);
+        }
+
+        $query = $qb->getQuery();
+
+        if ((int) $end > 0) {
+            $query->setFirstResult($start)
+                ->setMaxResults($end);
+        }
+
+        return $query;
+    }
 }
