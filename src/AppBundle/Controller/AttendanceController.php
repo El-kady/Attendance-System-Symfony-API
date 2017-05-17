@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Attendance;
 use AppBundle\Entity\User;
+use AppBundle\Entity\Schedule;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -79,12 +80,22 @@ class AttendanceController extends FOSRestController
         $user = $this->getDoctrine()
             ->getRepository('AppBundle:User')
             ->find($request->get('user_id'));
+        if(empty($user)){
+            return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        $d = new \DateTime('now');
+        $dd = $d->format('Y-m-d').'T00:00:00+0300';
 
         $schedule = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
             ->findBy(
-              array('track' => $user->track)
+              array('trackId' => $user->getTrackId()),
+              array('dayDate' => $dd)
             );
+        if(empty($schedule)){
+            return new View("There is no schedule for you today", Response::HTTP_NOT_ACCEPTABLE);
+        }
 
         $attendance->setArrive($arrive);
         $attendance->setLeavee($leavee);
