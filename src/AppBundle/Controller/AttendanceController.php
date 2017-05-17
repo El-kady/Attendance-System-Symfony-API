@@ -70,13 +70,14 @@ class AttendanceController extends FOSRestController
      */
     public function postAction(Request $request)
     {
-        $attendance = new Attendance();
+        //validate qr code
 
-        $arrive = $request->get('arrive');
-        $leavee = $request->get('leavee');
-        $requestPerm = $request->get('requestPerm');
-        $approvedPerm = $request->get('approvedPerm');
 
+        //get current time
+        $d = new \DateTime('now', new \DateTimeZone('Africa/Cairo'));
+        $time = $d->format('H:i');
+
+        //check user existance
         $user = $this->getDoctrine()
             ->getRepository('AppBundle:User')
             ->find($request->get('user_id'));
@@ -84,25 +85,37 @@ class AttendanceController extends FOSRestController
             return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        $d = new \DateTime('now');
-        $dd = $d->format('Y-m-d').'T00:00:00+0300';
-
+        //check if there is a schedule for this user's track today
         $schedule = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
-            ->findBy(
-              array('trackId' => $user->getTrackId()),
-              array('dayDate' => $dd)
+            ->findOneBy(
+              array('track' => $user->getTrack(), 'dayDate' => new \DateTime('now', new \DateTimeZone('Africa/Cairo')))
             );
+
         if(empty($schedule)){
-            return new View("There is no schedule for you today", Response::HTTP_NOT_ACCEPTABLE);
+            return new View("There is no schedule for your track today", Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        $attendance->setArrive($arrive);
-        $attendance->setLeavee($leavee);
-        $attendance->setRequestPerm($requestPerm);
-        $attendance->setApprovedPerm($approvedPerm);
-        $attendance->setUser($user);
-        $attendance->setSchedule($Schedule);
+        //check if the user has an attendance record today
+        $em = $this->getDoctrine()->getManager();
+        $attendance = $em->getRepository('AppBundle:Attendance')
+                          ->findOneBy(
+                              array('user' => $user, 'schedule' => $schedule)
+                          );
+        if(empty($attendance)){
+            //new arrive attendance record
+            $attendance = new Attendance();
+            $attendance->setArrive($time);
+            $attendance->setUser($user);
+            $attendance->setSchedule($schedule);
+        }else{
+            //check if the user has record of arriving and leaving
+            if(!empty($attendance->getLeavee())){
+                return new View("You have already left before, Go out of here!", Response::HTTP_NOT_ACCEPTABLE);
+            }
+            //edit attendance record by add leavee time
+            $attendance->setLeavee($time);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($attendance);

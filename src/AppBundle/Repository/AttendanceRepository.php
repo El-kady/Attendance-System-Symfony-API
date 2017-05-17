@@ -14,7 +14,7 @@ class AttendanceRepository extends \Doctrine\ORM\EntityRepository
   {
       $qb = $this->getEntityManager()->createQueryBuilder();
       $qb->select('s')
-          ->from('AppBundle:Schedule', 's');
+          ->from('AppBundle:Attendance', 's');
 
       if ($user_id > 0) {
           $qb->where('s.user = ' . $user_id);
