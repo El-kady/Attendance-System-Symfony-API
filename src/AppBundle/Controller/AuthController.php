@@ -26,17 +26,16 @@ class AuthController extends Controller
             throw $this->createNotFoundException();
         }
 
-        // password check
         if(!$this->get('security.password_encoder')->isPasswordValid($user, $password)) {
             throw $this->createAccessDeniedException();
         }
 
-        // Use LexikJWTAuthenticationBundle to create JWT token that hold only information about user name
         $token = $this->get('lexik_jwt_authentication.encoder')
             ->encode(['username' => $user->getUserName()]);
 
-        // Return genereted tocken
-        return new JsonResponse(['token' => $token]);
+        $user->setToken($token);
+
+        return $user;
     }
 
 }

@@ -31,6 +31,13 @@ class Branch
     /**
      * @var string
      *
+     * @ORM\Column(name="qrcode", type="string", length=255, nullable=true)
+     */
+    private $qrcode;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="address", type="string", length=255)
      */
     private $address;
@@ -79,6 +86,22 @@ class Branch
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQrcode()
+    {
+        return $this->qrcode;
+    }
+
+    /**
+     * @param string $qrcode
+     */
+    public function setQrcode($qrcode)
+    {
+        $this->qrcode = $qrcode;
     }
 
     /**
