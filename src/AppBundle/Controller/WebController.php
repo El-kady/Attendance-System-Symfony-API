@@ -2,16 +2,27 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Branch;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Endroid\QrCode\Factory\QrCodeFactory;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
-class QrCodeController extends Controller
+class WebController extends Controller
 {
     /**
-     * @Route("/qrcode/{branch}/{code}.{extension}", name="endroid_qrcode", requirements={"text"="[\w\W]+", "extension"="jpg|png|gif"})
+     * @Route("/web/qrcode/{branch}")
+     * @ParamConverter("branch", class="AppBundle:Branch")
+     */
+    public function qrcodeAction(Branch $branch)
+    {
+        return $this->render('AppBundle:Web:qrcode.html.twig', array('branch' => $branch));
+    }
+
+    /**
+     * @Route("/web/qrcode/{branch}/{code}.{extension}", name="endroid_qrcode", requirements={"text"="[\w\W]+", "extension"="jpg|png|gif"})
      */
     public function generateAction(Request $request,$branch, $code, $extension)
     {
@@ -46,4 +57,5 @@ class QrCodeController extends Controller
     {
         return $this->get('endroid.qrcode.factory');
     }
+
 }
