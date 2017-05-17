@@ -99,7 +99,7 @@ class ScheduleController extends FOSRestController
     public function updateAction($id, Request $request)
     {
 
-        $day_date = $request->get('day_date');
+        $day_date = date("",strtotime($request->get('day_date')));
         $start_time = $request->get('start_time');
         $end_time = $request->get('end_time');
 
