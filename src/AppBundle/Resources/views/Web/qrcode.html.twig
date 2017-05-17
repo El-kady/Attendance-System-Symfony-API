@@ -1,0 +1,36 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}{{ branch.getName() }} QR Code{% endblock %}
+
+{% block body %}
+    <div style="text-align: center">
+        <h1>{{ branch.getName() }} QR Code</h1>
+        <img id="qrcode">
+        <h3>Scan it using Our APP...</h3>
+    </div>
+    <script>
+        var $qrcode = document.getElementById('qrcode');
+        var qrcode_link = '{{ path('endroid_qrcode', {'branch': branch.getId(),'code' : '_code_','extension' : 'png'}) }}';
+
+        var RandomString = function(length)
+        {
+            var text = "";
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            for( var i=0; i < length; i++ )
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+            return text;
+        };
+
+        var QRCodeGererator = function () {
+            var code = RandomString(10);
+            $qrcode.setAttribute('src',qrcode_link.replace('_code_',code))
+        };
+        QRCodeGererator();
+        setInterval(function () {
+            QRCodeGererator()
+            console.log("xxx")
+        }, 1000);
+    </script>
+{% endblock %}
