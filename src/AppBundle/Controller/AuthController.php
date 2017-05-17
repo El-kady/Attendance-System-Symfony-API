@@ -37,6 +37,8 @@ class AuthController extends Controller
 
         // Return genereted tocken
         return new JsonResponse(['token' => $token]);
+	
+	
     }
 
 }
