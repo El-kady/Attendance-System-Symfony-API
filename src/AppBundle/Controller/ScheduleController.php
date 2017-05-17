@@ -80,7 +80,7 @@ class ScheduleController extends FOSRestController
             ->find($request->get('track_id'));
 
         $schedule->setCalenderId(1);
-        $schedule->setDayDate($day_date);
+        $schedule->setDayDate(new \DateTime($day_date));
         $schedule->setStartTime($start_time);
         $schedule->setEndTime($end_time);
         $schedule->setTrack($track);
@@ -110,7 +110,7 @@ class ScheduleController extends FOSRestController
         $ss = $this->getDoctrine()->getManager();
         $schedule = $ss->getRepository('AppBundle:Schedule')->find($id);
 
-        $schedule->setDayDate($day_date);
+        $schedule->setDayDate(new \DateTime($day_date));
         $schedule->setStartTime($start_time);
         $schedule->setEndTime($end_time);
         $schedule->setTrack($track);

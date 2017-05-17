@@ -44,7 +44,7 @@ class Schedule
     /**
      * @var \string
      *
-     * @ORM\Column(name="day_date", type="string")
+     * @ORM\Column(name="day_date", type="date")
      */
     private $dayDate;
     //private $day_date;
@@ -236,4 +236,3 @@ class Schedule
         return $this->trackId;
     }
 }
-
