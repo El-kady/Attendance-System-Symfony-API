@@ -236,4 +236,3 @@ class Schedule
         return $this->trackId;
     }
 }
-
