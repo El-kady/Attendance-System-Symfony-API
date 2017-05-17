@@ -69,9 +69,9 @@ class RoleController extends FOSRestController
         $name = $request->get('name');
         $deduction = $request->get('deduction');
         $quantity = $request->get('quantity');
-        $period = $request->get('address');
+        $period = $request->get('period');
 
-        if (empty($name) || empty($address) || empty($quantity) || empty($period)) {
+        if (empty($name) || empty($deduction) || empty($quantity) || empty($period)) {
             return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
         }
 

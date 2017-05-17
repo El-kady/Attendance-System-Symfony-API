@@ -33,9 +33,11 @@ class AuthController extends Controller
         $token = $this->get('lexik_jwt_authentication.encoder')
             ->encode(['username' => $user->getUserName()]);
 
+
         $user->setToken($token);
 
         return $user;
+
     }
 
 }
