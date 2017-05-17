@@ -80,6 +80,8 @@ class User implements UserInterface
      */
     protected $roles;
 
+    protected $token;
+
     /**
      * Get id
      *
@@ -279,5 +281,22 @@ class User implements UserInterface
     public function getTrackId()
     {
         return $this->trackId;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param mixed $token
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
     }
 }
