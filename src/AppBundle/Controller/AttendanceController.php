@@ -72,6 +72,8 @@ class AttendanceController extends FOSRestController
     {
         //validate qr code
 
+        $user_id = $request->get('user_id');
+        $qrcode = $request->get('qrcode');
 
         //get current time
         $d = new \DateTime('now', new \DateTimeZone('Africa/Cairo'));
@@ -80,9 +82,13 @@ class AttendanceController extends FOSRestController
         //check user existance
         $user = $this->getDoctrine()
             ->getRepository('AppBundle:User')
-            ->find($request->get('user_id'));
+            ->find($user_id);
         if(empty($user)){
             return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
+        }
+        
+        if($qrcode != $user->getTrack()->getBranch()->getQrcode()){
+            return new View("Wrong QR Code", Response::HTTP_NOT_ACCEPTABLE);
         }
 
         //check if there is a schedule for this user's track today
