@@ -53,6 +53,8 @@ class ScheduleController extends FOSRestController
     }
     /**
      * @Rest\Get("/api/schedules/new")
+     * @Annotations\QueryParam(name="track_id", nullable=true, description="Track id.")
+     * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      */
     public function getnewAction(Request $request)
     {
