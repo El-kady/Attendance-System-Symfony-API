@@ -176,7 +176,7 @@ class AttendanceController extends FOSRestController
     }
 
     /**
-     * @Rest\Put("/api/attendances")
+     * @Rest\Put("/api/attendances/{action}")
      */
     public function updateAction(Request $request)
     {
