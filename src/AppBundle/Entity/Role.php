@@ -38,7 +38,7 @@ class Role
     /**
      * @var int
      *
-     * @ORM\Column(name="quantity", type="integer")
+     * @ORM\Column(name="quantity", type="integer",nullable = true)
      */
     private $quantity;
 
