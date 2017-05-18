@@ -38,7 +38,8 @@ class AttendanceRepository extends \Doctrine\ORM\EntityRepository
       $qb = $this->getEntityManager()->createQueryBuilder();
       $qb->select('s')
           ->from('AppBundle:Attendance', 's')
-          ->where('s.requestPerm = 1 and s.approvedPerm is null');
+          //->where('s.requestPerm = 1 and s.approvedPerm is null');
+          ->where('s.requestPerm = 1');
 
       if ($sort && $order) {
           $qb->orderBy('s.' . $sort, $order);
@@ -69,6 +70,17 @@ class AttendanceRepository extends \Doctrine\ORM\EntityRepository
           $query->setFirstResult($start)
               ->setMaxResults($end);
       }
+
+      return $query;
+  }
+  public function findNullDeductions()
+  {
+      $qb = $this->getEntityManager()->createQueryBuilder();
+      $qb->select('s')
+          ->from('AppBundle:Attendance', 's')
+          ->where('s.deduction is null');
+
+      $query = $qb->getQuery();
 
       return $query;
   }

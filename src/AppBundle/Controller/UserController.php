@@ -18,19 +18,26 @@ class UserController extends FOSRestController
      * @Rest\Get("/api/users")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
-     * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
-     * @Annotations\QueryParam(name="_end", nullable=true, description="End.")
+     * @Annotations\QueryParam(name="_start", nullable=true, description="Start.",default=0)
+     * @Annotations\QueryParam(name="_end", nullable=true, description="End.",default=10)
+     * @Annotations\QueryParam(name="q", nullable=true, description="Query.",default="")
+     * @Annotations\QueryParam(name="track_id", nullable=true, description="Track Id.",default=0)
      */
     public function indexAction(Request $request,ParamFetcherInterface $paramFetcher)
     {
-        $sortField = $paramFetcher->get('_sort');
-        $sortOrder = $paramFetcher->get('_order');
-        $start = $paramFetcher->get('_start');
-        $end = $paramFetcher->get('_end');
+
+        $data = [
+            'sort' => $paramFetcher->get('_sort'),
+            'order' => $paramFetcher->get('_order'),
+            'start' => $paramFetcher->get('_start'),
+            'end' => $paramFetcher->get('_end'),
+            'q' => $paramFetcher->get('q'),
+            'track_id' => $paramFetcher->get('track_id'),
+        ];
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:User')
-            ->findAllQuery($sortField,$sortOrder,$start,$end);
+            ->findAllQuery($data);
 
         $paginator = new Paginator($query);
         $totalCount = $paginator->count();

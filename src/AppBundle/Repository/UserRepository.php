@@ -10,20 +10,30 @@ namespace AppBundle\Repository;
  */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findAllQuery($sort = null,$order = null,$start = 0,$end = 10)
+    public function findAllQuery($data = [])
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('u')
             ->from('AppBundle:User', 'u');
 
-        if ($sort && $order) {
-            $qb->orderBy('u.' . $sort, $order);
+        if (isset($data['track_id']) && (int) $data['track_id'] > 0) {
+            $qb->where('u.track = ' . $data['track_id']);
+        }
+
+        if (isset($data['q']) && empty($data['q']) == false) {
+            $qb->where('u.name like :q')->setParameter('q','%'.$data['q'].'%' );;
+        }
+
+        if (isset($data['sort']) && isset($data['order'])) {
+            $qb->orderBy('u.' . $data['sort'], $data['order']);
         }
 
         $query = $qb->getQuery();
 
-        $query->setFirstResult($start)
-            ->setMaxResults($end);
+        if ( (int) $data['end'] > 0) {
+            $query->setFirstResult($data['start'])
+                ->setMaxResults($data['end']);
+        }
 
         return $query;
     }

@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PermissionController extends FOSRestController
 {
     /**
+     * Admin USE
      * @Rest\Get("/api/permissions")
      * @Annotations\QueryParam(name="_sort", nullable=true, description="Sort field.")
      * @Annotations\QueryParam(name="_order", nullable=true, description="Sort Order.")
@@ -29,6 +30,10 @@ class PermissionController extends FOSRestController
         $sortOrder = $paramFetcher->get('_order');
         $start = $paramFetcher->get('_start');
         $end = $paramFetcher->get('_end');
+
+        if ($sortField == 'user_id') {
+            $sortField = 'user';
+        }
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Attendance')
@@ -51,6 +56,7 @@ class PermissionController extends FOSRestController
     }
 
     /**
+     * Student USE
      * @Rest\Get("/api/permissions/{user_id}")
      */
     public function getAction($user_id)
@@ -73,6 +79,7 @@ class PermissionController extends FOSRestController
     }
 
     /**
+     * Student USE
      * @Rest\Post("/api/permissions")
      */
     public function postAction(Request $request)
@@ -125,6 +132,27 @@ class PermissionController extends FOSRestController
         $em->flush();
 
         return new View($attendance, Response::HTTP_OK);
+    }
+
+    /**
+     * Admin USE
+     * @Rest\Put("/api/permissions/{id}")
+     */
+    public function updateAction($id, Request $request)
+    {
+        $data = new Attendance();
+        $action = $request->get('action');
+
+        $ss = $this->getDoctrine()->getManager();
+        $attendance = $ss->getRepository('AppBundle:Attendance')->find($id);
+
+        if (empty($attendance)) {
+            return new View("attendance row not found", Response::HTTP_NOT_FOUND);
+        } elseif ($action == 0 || $action == 1) {
+            $attendance->setApprovedPerm($action);
+            $ss->flush();
+            return new View("Permission Updated Successfully", Response::HTTP_OK);
+        } else return new View("Permission action value error", Response::HTTP_NOT_ACCEPTABLE);
     }
 
     /**
