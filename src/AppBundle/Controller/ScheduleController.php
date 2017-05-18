@@ -51,7 +51,29 @@ class ScheduleController extends FOSRestController
 
         return $this->handleView($view);
     }
+    /**
+     * @Rest\Get("/api/schedules/new")
+     */
+    public function getnewAction(Request $request)
+    {
+        $track_id = $paramFetcher->get('track_id');
 
+        $sortField = $paramFetcher->get('_sort');
+
+        $query = $this->getDoctrine()
+            ->getRepository('AppBundle:Schedule')
+            ->findNewSchedules($track_id);
+
+        $restresult = $query->getResult();
+
+        if ($restresult === null) {
+            return new View("there are no Schedules exist", Response::HTTP_NOT_FOUND);
+        }
+
+        $view = $this->view($restresult, 200);
+
+        return $this->handleView($view);
+    }
     /**
      * @Rest\Get("/api/schedules/{id}")
      */
