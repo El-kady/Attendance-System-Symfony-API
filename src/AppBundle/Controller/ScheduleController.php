@@ -62,7 +62,7 @@ class ScheduleController extends FOSRestController
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
-            ->findNewQuery($track_id);
+            ->findNewSchedules($track_id);
 
         $restresult = $query->getResult();
 
