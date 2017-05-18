@@ -86,7 +86,7 @@ class AttendanceController extends FOSRestController
         if(empty($user)){
             return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
         }
-        
+
         if($qrcode != $user->getTrack()->getBranch()->getQrcode()){
             return new View("Wrong QR Code", Response::HTTP_NOT_ACCEPTABLE);
         }
