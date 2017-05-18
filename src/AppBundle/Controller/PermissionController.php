@@ -31,6 +31,10 @@ class PermissionController extends FOSRestController
         $start = $paramFetcher->get('_start');
         $end = $paramFetcher->get('_end');
 
+        if ($sortField == 'user_id') {
+            $sortField = 'user';
+        }
+
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Attendance')
             ->findRequestedPerm($sortField,$sortOrder,$start,$end);
