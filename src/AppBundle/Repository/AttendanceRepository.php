@@ -33,4 +33,43 @@ class AttendanceRepository extends \Doctrine\ORM\EntityRepository
 
       return $query;
   }
+  public function findRequestedPerm($sort = null,$order = null,$start = 0,$end = 10)
+  {
+      $qb = $this->getEntityManager()->createQueryBuilder();
+      $qb->select('s')
+          ->from('AppBundle:Attendance', 's')
+          ->where('s.requestPerm = 1 and s.approvedPerm is null');
+
+      if ($sort && $order) {
+          $qb->orderBy('s.' . $sort, $order);
+      }
+
+      $query = $qb->getQuery();
+
+      if ((int) $end > 0) {
+          $query->setFirstResult($start)
+              ->setMaxResults($end);
+      }
+
+      return $query;
+  }
+  public function findUserPerm($user_id,$sort = null,$order = null,$start = 0,$end = 10)
+  {
+      $qb = $this->getEntityManager()->createQueryBuilder();
+      $qb->select('s')
+          ->from('AppBundle:Attendance', 's')
+          ->where('s.userId = '.$user_id.' and s.requestPerm = 1');
+      if ($sort && $order) {
+          $qb->orderBy('s.' . $sort, $order);
+      }
+
+      $query = $qb->getQuery();
+
+      if ((int) $end > 0) {
+          $query->setFirstResult($start)
+              ->setMaxResults($end);
+      }
+
+      return $query;
+  }
 }

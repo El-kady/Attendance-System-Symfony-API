@@ -86,7 +86,8 @@ class AttendanceController extends FOSRestController
         if(empty($user)){
             return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
         }
-        
+
+        // if(empty($qrcode) || $qrcode != $user->getTrack()->getBranch()->getQrcode()){
         if($qrcode != $user->getTrack()->getBranch()->getQrcode()){
             return new View("Wrong QR Code", Response::HTTP_NOT_ACCEPTABLE);
         }
@@ -115,12 +116,21 @@ class AttendanceController extends FOSRestController
             $attendance->setUser($user);
             $attendance->setSchedule($schedule);
         }else{
-            //check if the user has record of arriving and leaving
+            //check if the user has attendance record today
             if(!empty($attendance->getLeavee())){
+                //user arrived and left before
                 return new View("You have already left before, Go out of here!", Response::HTTP_NOT_ACCEPTABLE);
+            }elseif (empty($attendance->getArrive())) {
+                //user has requested permission before but he came
+                //delete the permission and set arrive time
+                $attendance->setArrive($time);
+                $attendance->setApprovedPerm(null);
+                $attendance->setRequestPerm(null);
+            }else{
+                //user has arrive time record today
+                //set leavee time
+                $attendance->setLeavee($time);
             }
-            //edit attendance record by add leavee time
-            $attendance->setLeavee($time);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -129,34 +139,6 @@ class AttendanceController extends FOSRestController
 
         return new View($attendance, Response::HTTP_OK);
     }
-
-    /**
-     * @Rest\Put("/api/attendances/{id}")
-     */
-    // public function updateAction($id, Request $request)
-    // {
-    //
-    //     $day_date = $request->get('day_date');
-    //     $start_time = $request->get('start_time');
-    //     $end_time = $request->get('end_time');
-    //
-    //     $user = $this->getDoctrine()
-    //         ->getRepository('AppBundle:User')
-    //         ->find($request->get('user_id'));
-    //
-    //     $ss = $this->getDoctrine()->getManager();
-    //     $attendance = $ss->getRepository('AppBundle:Attendance')->find($id);
-    //
-    //     $attendance->setDayDate($day_date);
-    //     $attendance->setStartTime($start_time);
-    //     $attendance->setEndTime($end_time);
-    //     $attendance->setUser($user);
-    //
-    //     if (!empty($day_date) && !empty($start_time) && !empty($end_time)) {
-    //         $ss->flush();
-    //         return new View("Updated Successfully", Response::HTTP_OK);
-    //     } else return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
-    // }
 
     /**
      * @Rest\Delete("/api/attendances/{id}")
