@@ -47,4 +47,18 @@ class ScheduleRepository extends \Doctrine\ORM\EntityRepository
 
         return $query;
     }
+    public function findNewSchedules($track_id)
+    {
+        $now_date = new \DateTime('now', new \DateTimeZone('Africa/Cairo'));
+        $now_d = $now_date->format('Y-m-d');
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('s')
+            ->from('AppBundle:Schedule', 's')
+            ->where('s.track = ' . $track_id)
+            ->andWhere('s.dayDate > :now_date')
+            ->setParameter('now_date', $now_d);
+        $query = $qb->getQuery();
+
+        return $query;
+    }
 }
