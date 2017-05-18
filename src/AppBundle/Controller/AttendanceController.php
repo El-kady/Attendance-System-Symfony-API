@@ -11,6 +11,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -94,7 +95,7 @@ class AttendanceController extends FOSRestController
         }
         // $result = json_encode($att);
         // return new View($result, Response::HTTP_OK);
-        return $att;
+        return new JsonResponse($att);
     }
 
     /**
