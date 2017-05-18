@@ -24,6 +24,13 @@ class Attendance
     /**
      * @var \string
      *
+     * @ORM\Column(name="deduction", type="string", nullable=true)
+     */
+    private $deduction;
+
+    /**
+     * @var \string
+     *
      * @ORM\Column(name="arrive", type="string", nullable=true)
      */
     private $arrive;
@@ -81,6 +88,30 @@ class Attendance
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set deduction
+     *
+     * @param \string $deduction
+     *
+     * @return Attendance
+     */
+    public function setDeduction($deduction)
+    {
+        $this->deduction = $deduction;
+
+        return $this;
+    }
+
+    /**
+     * Get deduction
+     *
+     * @return \string
+     */
+    public function getDeduction()
+    {
+        return $this->deduction;
     }
 
     /**

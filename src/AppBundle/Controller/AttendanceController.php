@@ -24,45 +24,80 @@ class AttendanceController extends FOSRestController
      * @Annotations\QueryParam(name="_start", nullable=true, description="Start.")
      * @Annotations\QueryParam(name="_end", nullable=true, description="End.")
      */
-    public function indexAction(Request $request,ParamFetcherInterface $paramFetcher)
-    {
-        $user_id = $paramFetcher->get('user_id');
-
-        $sortField = $paramFetcher->get('_sort');
-        $sortOrder = $paramFetcher->get('_order');
-        $start = $paramFetcher->get('_start');
-        $end = $paramFetcher->get('_end');
-
-        $query = $this->getDoctrine()
-            ->getRepository('AppBundle:Attendance')
-            ->findAllQuery($user_id,$sortField,$sortOrder,$start,$end);
-
-        $paginator = new Paginator($query);
-        $totalCount = $paginator->count();
-
-        $restresult = $query->getResult();
-
-        if ($restresult === null) {
-            return new View("there are no Attendances exist", Response::HTTP_NOT_FOUND);
-        }
-
-        $view = $this->view($restresult, 200)
-            ->setHeader('Access-Control-Expose-Headers', 'X-Total-Count')
-            ->setHeader('X-Total-Count', $totalCount);
-
-        return $this->handleView($view);
-    }
+    // public function indexAction(Request $request,ParamFetcherInterface $paramFetcher)
+    // {
+    //     $user_id = $paramFetcher->get('user_id');
+    //
+    //     $sortField = $paramFetcher->get('_sort');
+    //     $sortOrder = $paramFetcher->get('_order');
+    //     $start = $paramFetcher->get('_start');
+    //     $end = $paramFetcher->get('_end');
+    //
+    //     $query = $this->getDoctrine()
+    //         ->getRepository('AppBundle:Attendance')
+    //         ->findAllQuery($user_id,$sortField,$sortOrder,$start,$end);
+    //
+    //     $paginator = new Paginator($query);
+    //     $totalCount = $paginator->count();
+    //
+    //     $restresult = $query->getResult();
+    //
+    //     if ($restresult === null) {
+    //         return new View("there are no Attendances exist", Response::HTTP_NOT_FOUND);
+    //     }
+    //
+    //     $view = $this->view($restresult, 200)
+    //         ->setHeader('Access-Control-Expose-Headers', 'X-Total-Count')
+    //         ->setHeader('X-Total-Count', $totalCount);
+    //
+    //     return $this->handleView($view);
+    // }
 
     /**
-     * @Rest\Get("/api/attendances/{id}")
+     * Get specific user attendance (late deduction, absence deduction)
+     * @Rest\Get("/api/attendances/{user_id}")
      */
-    public function getAction($id)
+    public function getAction($user_id)
     {
-        $singleresult = $this->getDoctrine()->getRepository('AppBundle:Attendance')->find($id);
-        if ($singleresult === null) {
-            return new View("Attencance not found", Response::HTTP_NOT_FOUND);
+        //create object
+        $att = new \stdClass;
+        $att->late_deduction = 0;
+        $att->late_days = 0;
+        $att->absence_days = 0;
+        $att->absence_deduction = 0;
+        //days role deduction
+        $s = $this->getDoctrine()->getManager();
+        $role = $s->getRepository('AppBundle:Role')
+                          ->findOneByName('days');
+        //check user existance
+        $user = $this->getDoctrine()
+            ->getRepository('AppBundle:User')
+            ->find($user_id);
+        if(empty($user)){
+            return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
         }
-        return $singleresult;
+        //find Track Old Schedules
+        $q = $this->getDoctrine()->getRepository('AppBundle:Schedule')->findTrackOldSchedules($user->getTrackId());
+        $schedules = $q->getResult();
+        echo sizeof($schedules);
+        // if(empty($schedules)){
+        //   echo 'eeeee';
+        // }
+        foreach($schedules as $schedule){
+            $attendance = $this->getDoctrine()->getRepository('AppBundle:Attendance')->findOneBy(
+                array('schedule' => $schedule, 'user' => $user)
+            );
+            if(empty($attendance) || ($attendance->getApprovedPerm() === 0 && $attendance->getArrive() === null)){
+
+                $att->absence_days += 1;
+                $att->absence_deduction += $role->getDeduction();
+            }elseif($attendance->getArrive() !== null && $attendance->getDeduction() !== null){
+                $att->late_days += 1;
+                $att->late_deduction += $attendance->getDeduction();
+            }
+        }
+        $result = json_encode($att);
+        return new View($result, Response::HTTP_OK);
     }
 
     /**
@@ -138,6 +173,47 @@ class AttendanceController extends FOSRestController
         $em->flush();
 
         return new View($attendance, Response::HTTP_OK);
+    }
+
+    /**
+     * @Rest\Put("/api/attendances")
+     */
+    public function updateAction(Request $request)
+    {
+        $s = $this->getDoctrine()->getManager();
+        $role = $s->getRepository('AppBundle:Role')
+                          ->findOneByName('hours');
+        //////////
+        $ss = $this->getDoctrine()->getManager();
+        $query = $ss->getRepository('AppBundle:Attendance')->findNullDeductions();
+        $restResult = $query->getResult();
+        foreach($restResult as $single){
+            // if($single->getRequestPerm() !== null){
+            if($single->getApprovedPerm() == 1){
+              $single->setDeduction(0);
+            }if($single->getArrive() !== null){
+              //arrive_late_hours
+              $start_hours = strtotime($single->getSchedule()->getStartTime());
+              $arrive_hours = strtotime($single->getArrive());
+              $diff_1 = floor(($arrive_hours - $start_hours)/3600);
+              $arrive_late_hours = ($diff_1 > 0) ? $diff_1 : 0;
+              //leave_early_hours
+              if($single->getLeavee() !== null){
+                  $end_hours = strtotime($single->getSchedule()->getEndTime());
+                  $leave_hours = strtotime($single->getLeavee());
+                  $diff_2 = floor(($end_hours - $leave_hours)/3600);
+              }else{
+                  $diff_2 = 0;
+              }
+              $leave_early_hours = ($diff_2 > 0) ? $diff_2 : 0;
+              //punished_hours
+              $punished_hours = $arrive_late_hours + $leave_early_hours;
+              //apply hours role
+              $single->setDeduction($punished_hours * $role->getDeduction());
+            }
+        }
+        $ss->flush();
+        return new View("Deductions Updated Successfully", Response::HTTP_OK);
     }
 
     /**

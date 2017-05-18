@@ -72,4 +72,15 @@ class AttendanceRepository extends \Doctrine\ORM\EntityRepository
 
       return $query;
   }
+  public function findNullDeductions()
+  {
+      $qb = $this->getEntityManager()->createQueryBuilder();
+      $qb->select('s')
+          ->from('AppBundle:Attendance', 's')
+          ->where('s.deduction is null');
+
+      $query = $qb->getQuery();
+
+      return $query;
+  }
 }
