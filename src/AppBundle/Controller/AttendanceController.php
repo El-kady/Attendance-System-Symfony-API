@@ -73,6 +73,7 @@ class AttendanceController extends FOSRestController
         //validate qr code
 
         $user_id = $request->get('user_id');
+	//$user_id = (string)$user_id;
         $qrcode = $request->get('qrcode');
 
         //get current time
@@ -87,8 +88,8 @@ class AttendanceController extends FOSRestController
             return new View("Error in user id", Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        // if(empty($qrcode) || $qrcode != $user->getTrack()->getBranch()->getQrcode()){
-        if($qrcode != $user->getTrack()->getBranch()->getQrcode()){
+        if(empty($qrcode) || $qrcode != $user->getTrack()->getBranch()->getQrcode()){
+        //if($qrcode != $user->getTrack()->getBranch()->getQrcode()){
             return new View("Wrong QR Code", Response::HTTP_NOT_ACCEPTABLE);
         }
 
