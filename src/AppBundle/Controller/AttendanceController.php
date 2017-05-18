@@ -79,10 +79,6 @@ class AttendanceController extends FOSRestController
         //find Track Old Schedules
         $q = $this->getDoctrine()->getRepository('AppBundle:Schedule')->findTrackOldSchedules($user->getTrackId());
         $schedules = $q->getResult();
-        echo sizeof($schedules);
-        // if(empty($schedules)){
-        //   echo 'eeeee';
-        // }
         foreach($schedules as $schedule){
             $attendance = $this->getDoctrine()->getRepository('AppBundle:Attendance')->findOneBy(
                 array('schedule' => $schedule, 'user' => $user)
@@ -96,8 +92,9 @@ class AttendanceController extends FOSRestController
                 $att->late_deduction += $attendance->getDeduction();
             }
         }
-        $result = json_encode($att);
-        return new View($result, Response::HTTP_OK);
+        // $result = json_encode($att);
+        // return new View($result, Response::HTTP_OK);
+        return $att;
     }
 
     /**
