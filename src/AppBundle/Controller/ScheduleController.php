@@ -56,9 +56,9 @@ class ScheduleController extends FOSRestController
      */
     public function getnewAction(Request $request)
     {
-        $track_id = $paramFetcher->get('track_id');
+        $track_id = $request->get('track_id');
 
-        $sortField = $paramFetcher->get('_sort');
+        
 
         $query = $this->getDoctrine()
             ->getRepository('AppBundle:Schedule')
