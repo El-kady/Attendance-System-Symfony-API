@@ -12,7 +12,7 @@ security:
     firewalls:
         # Custom authentication firewall for all request thats starts from /api
         api:
-            pattern: ^/apix/(?!token)
+            pattern: ^/api/(?!token)
             guard:
                 authenticators:
                     - app.jwt_token_authenticator
