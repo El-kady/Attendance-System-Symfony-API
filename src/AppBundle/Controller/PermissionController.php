@@ -111,7 +111,7 @@ class PermissionController extends FOSRestController
         $interval = $d2->diff($d1);
         $t = (int)$interval->format("%r%a");
         if($t <= 0){
-            return new View("You are not allowed to request permission in that day", Response::HTTP_NOT_ACCEPTABLE);
+            return new View("You are not allowed to request permission in that day ".schedule_id." ".$t, Response::HTTP_NOT_ACCEPTABLE);
         }
         //check if requested permission before
         $e = $this->getDoctrine()->getManager();
